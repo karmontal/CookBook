@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "5114748991",
+    "firebase_url": "https://cook-book-bc187.firebaseio.com",
+    "project_id": "cook-book-bc187",
+    "storage_bucket": "cook-book-bc187.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:5114748991:android:d434a14c84d29ce5",
+        "android_client_info": {
+          "package_name": "com.karapps.cookbook"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "5114748991-6guvimu9nef14cj69dbnksk4e8t9i9fp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBsV6J2jESvzTVlEF4upuGOVOTzN3D0lFs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "5114748991-6guvimu9nef14cj69dbnksk4e8t9i9fp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

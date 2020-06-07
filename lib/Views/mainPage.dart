@@ -1,3 +1,4 @@
+import 'package:admob_flutter/admob_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -83,13 +84,13 @@ class _MainPageState extends State<MainPage> {
                         },
                         physics: BouncingScrollPhysics(),
                         controller: controller,
-                        itemCount: recipes.length,
+                        itemCount: 5,
                         itemBuilder: (context, index) {
                           final scale = max(
                               SCALE_FRACTION,
                               (FULL_SCALE - (index - page).abs()) +
                                   viewPortFraction);
-                                  
+
                           return circleOffer(recipes[index].img, scale);
                         },
                       ),
@@ -116,6 +117,10 @@ class _MainPageState extends State<MainPage> {
             height: MediaQuery.of(context).size.height * 0.02,
             fit: BoxFit.cover,
             image: AssetImage("assets/top.png"),
+          ),
+          AdmobBanner(
+            adUnitId: "ca-app-pub-2738619858586311/7136483095",
+            adSize: AdmobBannerSize.BANNER,
           ),
           Container(
               color: Colors.white,
@@ -166,7 +171,9 @@ class _MainPageState extends State<MainPage> {
     return Align(
       alignment: Alignment.bottomCenter,
       child: GestureDetector(
-          onTap: () {},
+          onTap: () {
+            print(image);
+          },
           child: Container(
             margin: EdgeInsets.only(bottom: 10),
             height: PAGER_HEIGHT * scale,

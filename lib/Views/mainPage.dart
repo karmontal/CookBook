@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cookbook/models/models.dart';
-import 'Category.dart';
 import 'dart:math';
 // import 'package:transparent_image/transparent_image.dart';
 // import 'package:cached_network_image/cached_network_image.dart';
@@ -165,7 +164,6 @@ class _MainPageState extends State<MainPage> {
           children: <Widget>[
             GestureDetector(
                 onTap: () {
-                  String _n =recipe.name;
                   Navigator.push(context, MaterialPageRoute(builder:(context) => new RecipePage(recipe: recipe,)));
                 },
                 child: Container(

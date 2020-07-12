@@ -1,3 +1,4 @@
+import 'package:cookbook/Views/recipePage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -21,7 +22,7 @@ class _MainPageState extends State<MainPage> {
     controller = new PageController(
       initialPage: currentpage,
       keepPage: false,
-      viewportFraction: 0.9,
+      viewportFraction: 0.6,
     );
   }
 
@@ -114,17 +115,20 @@ class _MainPageState extends State<MainPage> {
   }
 
   List<Widget> builder(List<DocumentSnapshot> snap) {
-    Recipe recipe; // = Recipe.fromSnapshot(snap);
+    //final Recipe recipe; // = Recipe.fromSnapshot(snap);
     List<Widget> res = new List<Widget>();
     Widget w;
     for (var item in snap) {
-      recipe = Recipe.fromSnapshot(item);
+      final Recipe recipe = Recipe.fromSnapshot(item);
       if (recipe.name.contains("")) {
         w = new Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  String _n =recipe.name;
+                  Navigator.push(context, MaterialPageRoute(builder:(context) => new RecipePage(recipe: recipe,)));
+                },
                 child: Container(
                     height: MediaQuery.of(context).size.height * 0.15,
                     width: MediaQuery.of(context).size.height * 0.15,
@@ -165,7 +169,9 @@ class _MainPageState extends State<MainPage> {
     for (var item in snap) {
       category = Category.fromSnapshot(item);
       w = new FlatButton(
-          onPressed: () {},
+          onPressed: () {
+            return 0;
+          },
           child: Column(
             children: <Widget>[
               Container(

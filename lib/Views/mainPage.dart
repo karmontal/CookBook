@@ -1,4 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cookbook/Views/recipePage.dart';
+import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -24,6 +26,13 @@ class _MainPageState extends State<MainPage> {
   int currentPage = 10;
   String recipeText = "";
   double page = 2.0;
+  BannerAd myBanner = BannerAd(
+    adUnitId: BannerAd.testAdUnitId,
+    size: AdSize.smartBanner,
+    listener: (MobileAdEvent event) {
+      print("BannerAd event is $event");
+    },
+  );
 
   @override
   initState() {
@@ -33,6 +42,11 @@ class _MainPageState extends State<MainPage> {
       keepPage: false,
       viewportFraction: viewPortFraction,
     );
+    FirebaseAdMob.instance
+        .initialize(appId: "ca-app-pub-2738619858586311~9330585255")
+        .whenComplete(() => myBanner
+          ..load()
+          ..show());
   }
 
   @override
@@ -61,7 +75,12 @@ class _MainPageState extends State<MainPage> {
                             height: 50,
                             child: CircularProgressIndicator()));
                   }
-                  builder(snapshot.data.documents.take(5).toList());
+                  var snap = snapshot.data.documents.take(5).toList();
+
+                  for (var item in snap) {
+                    final Recipe recipe = Recipe.fromSnapshot(item);
+                    recipes.add(recipe);
+                  }
 
                   return new Container(
                     height: PAGER_HEIGHT,
@@ -90,16 +109,11 @@ class _MainPageState extends State<MainPage> {
                               (FULL_SCALE - (index - page).abs()) +
                                   viewPortFraction);
 
-                          return circleOffer(recipes[index].img, scale);
+                          return circleOffer(recipes[index], scale);
                         },
                       ),
                     ),
                   );
-                  // PageView(
-                  //   controller: controller,
-                  //   children: builder(snapshot.data.documents.take(5).toList()),
-                  //   //snapshot.data.documents.length,
-                  // );
                 },
               )
             ]),
@@ -152,73 +166,39 @@ class _MainPageState extends State<MainPage> {
     ));
   }
 
-  List<Widget> builder(List<DocumentSnapshot> snap) {
-    //final Recipe recipe; // = Recipe.fromSnapshot(snap);
-    List<Widget> res = new List<Widget>();
-    Widget w;
-    for (var item in snap) {
-      final Recipe recipe = Recipe.fromSnapshot(item);
-      if (recipe.name.contains("")) {
-        w = new Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            GestureDetector(
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder:(context) => new RecipePage(recipe: recipe,)));
-                },
-                child: Container(
-                    height: MediaQuery.of(context).size.height * 0.15,
-                    width: MediaQuery.of(context).size.height * 0.15,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.white, width: 5.0),
-                      borderRadius: new BorderRadius.circular(
-                          MediaQuery.of(context).size.height * 0.09),
-                      // image: DecorationImage(
-                      //     image: NetworkImage(recipe.img),
-                      //     fit: BoxFit.cover,
-                      //     alignment: Alignment.center)
-                    ),
-                    child: ClipRRect(
-                        borderRadius: BorderRadius.circular(
-                            MediaQuery.of(context).size.height * 0.1),
-                        child: FadeInImage.assetNetwork(
-                            placeholder: "assets/wlogo.png",
-                            image: recipe.img,
-                            fit: BoxFit.cover)))),
-            Text(
-              recipe.name,
-              style: TextStyle(
-                  fontFamily: "lal", fontSize: 22, color: Colors.white),
-              maxLines: 1,
-            ),
-          ],
-        );
-        res.add(w);
-      }
-    }
-    return res;
-  }
-
-  Widget circleOffer(String image, double scale) {
+  Widget circleOffer(Recipe rec, double scale) {
     return Align(
       alignment: Alignment.bottomCenter,
       child: GestureDetector(
           onTap: () {
-            print(image);
+            print(rec.toString());
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => new RecipePage(
+                          recipe: rec,
+                        )));
           },
           child: Container(
             margin: EdgeInsets.only(bottom: 10),
             height: PAGER_HEIGHT * scale,
             width: PAGER_HEIGHT * scale,
             child: Card(
-                elevation: 4,
-                clipBehavior: Clip.antiAlias,
-                shape: CircleBorder(
-                    side: BorderSide(color: Colors.grey.shade200, width: 5)),
-                child: FadeInImage.assetNetwork(
-                    placeholder: "assets/clogo.png",
-                    image: image,
-                    fit: BoxFit.cover)),
+              elevation: 4,
+              clipBehavior: Clip.antiAlias,
+              shape: CircleBorder(
+                  side: BorderSide(color: Colors.grey.shade200, width: 5)),
+              child: CachedNetworkImage(
+                imageUrl: rec.img, //"http://via.placeholder.com/350x150",
+                placeholder: (context, url) => Image.asset("assets/clogo.png"),
+                errorWidget: (context, url, error) => Icon(Icons.error),
+                fit: BoxFit.cover,
+              ),
+              // FadeInImage.assetNetwork(
+              //     placeholder: "assets/clogo.png",
+              //     image: image,
+              //     fit: BoxFit.cover)
+            ),
           )),
     );
   }
@@ -253,12 +233,21 @@ class _MainPageState extends State<MainPage> {
                     //     alignment: Alignment.center)
                   ),
                   child: ClipRRect(
-                      borderRadius: BorderRadius.circular(
-                          MediaQuery.of(context).size.width / 4 - 25),
-                      child: FadeInImage.assetNetwork(
-                          placeholder: "assets/clogo.png",
-                          image: category.img,
-                          fit: BoxFit.cover))),
+                    borderRadius: BorderRadius.circular(
+                        MediaQuery.of(context).size.width / 4 - 25),
+                    child: CachedNetworkImage(
+                      imageUrl:
+                          category.img, //"http://via.placeholder.com/350x150",
+                      placeholder: (context, url) =>
+                          Image.asset("assets/clogo.png"),
+                      errorWidget: (context, url, error) => Icon(Icons.error),
+                      fit: BoxFit.cover,
+                    ),
+                    // FadeInImage.assetNetwork(
+                    //     placeholder: "assets/clogo.png",
+                    //     image: category.img,
+                    //     fit: BoxFit.cover)
+                  )),
               Text(
                 category.name,
                 style: TextStyle(

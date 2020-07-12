@@ -4,6 +4,7 @@ class Recipe {
   String name;
   String img;
   String details;
+  String method;
   DocumentReference reference;
 
  Recipe(name,img,details){

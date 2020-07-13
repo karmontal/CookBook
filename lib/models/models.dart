@@ -4,22 +4,29 @@ class Recipe {
   String name;
   String img;
   String details;
-  String method;
+  String ings;
+  Timestamp addDate;
   DocumentReference reference;
 
- Recipe(name,img,details){
+ Recipe(name,img,ings,details,addDate){
     this.name = name;
     this.img = img;
+    this.ings = ings;
     this.details = details;
+    this.addDate = addDate;
  }
 
  Recipe.fromMap(Map<String, dynamic> map, {this.reference})
      : assert(map['name'] != null),
        assert(map['img'] != null),
+       assert(map['ings'] != null),
        assert(map['details'] != null),
+       assert(map['add_date'] != null),
        name = map['name'],
        img = map['img'],
-       details = map['details'];
+       ings = map['ings'],
+       details = map['details'],
+       addDate = map['add_date'];
 
  Recipe.fromSnapshot(DocumentSnapshot snapshot)
      : this.fromMap(snapshot.data, reference: snapshot.reference);

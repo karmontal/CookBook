@@ -1,17 +1,20 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cookbook/models/models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'recipePage.dart';
+
 //import 'package:cached_network_image/cached_network_image.dart';
 Category _category;
 
 class CategoryPage extends StatefulWidget {
-  CategoryPage({@required this.name, Key key}) : super(key: key);
-  final Category name;
+  CategoryPage({@required this.cat, Key key}) : super(key: key);
+  final Category cat;
 
   _CategoryPageState createState() {
-    _category = name;
+    _category = cat;
     return _CategoryPageState();
   }
 }
@@ -37,10 +40,12 @@ class _CategoryPageState extends State<CategoryPage> {
                         padding: EdgeInsets.all(0),
                         height: MediaQuery.of(context).size.height * 0.25,
                         width: MediaQuery.of(context).size.width,
-                        child: FadeInImage.assetNetwork(
-                            placeholder: "assets/clogo.png",
-                            image: _category.img,
-                            fit: BoxFit.cover)),
+                        child: CachedNetworkImage(
+                imageUrl: _category.img, //"http://via.placeholder.com/350x150",
+                placeholder: (context, url) => Image.asset("assets/clogo.png"),
+                errorWidget: (context, url, error) => Icon(Icons.error),
+                fit: BoxFit.cover,
+              ),),
                     Container(
                         color: Colors.black54,
                         width: MediaQuery.of(context).size.width,
@@ -79,7 +84,10 @@ class _CategoryPageState extends State<CategoryPage> {
                               children: _recipiesGridView(snapshot.data.documents));
                         }
                       }),
-                )
+                ),
+                Container(
+              height: 50,
+            )
               ],
             )));
   }
@@ -101,6 +109,13 @@ class _CategoryPageState extends State<CategoryPage> {
           //     context,
           //     MaterialPageRoute(
           //         builder: (context) => new CategoryPage(name: category)));
+          Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => new RecipePage(
+                          recipe: rec,
+                          fs:18
+                        )));
         },
         child: Column(
           children: <Widget>[
@@ -110,15 +125,19 @@ class _CategoryPageState extends State<CategoryPage> {
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.brown, width: 5.0),
                   borderRadius: new BorderRadius.circular(
-                      MediaQuery.of(context).size.width / 4 - 25),
+                      MediaQuery.of(context).size.width / 8),
                 ),
                 child: ClipRRect(
                     borderRadius: BorderRadius.circular(
-                        MediaQuery.of(context).size.width),
-                    child: FadeInImage.assetNetwork(
-                        placeholder: "assets/clogo.png",
-                        image: rec.img,
-                        fit: BoxFit.cover))),
+                        MediaQuery.of(context).size.width / 8 - 5),
+                    child: 
+                    CachedNetworkImage(
+                imageUrl: rec.img, //"http://via.placeholder.com/350x150",
+                placeholder: (context, url) => Image.asset("assets/clogo.png"),
+                errorWidget: (context, url, error) => Icon(Icons.error),
+                fit: BoxFit.cover,
+              ),
+                        )),
             Center(child:Text(
               rec.name,
               style: TextStyle(

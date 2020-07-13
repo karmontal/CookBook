@@ -6,6 +6,8 @@ import 'package:flutter/widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cookbook/models/models.dart';
 import 'dart:math';
+
+import 'Category.dart';
 // import 'package:transparent_image/transparent_image.dart';
 // import 'package:cached_network_image/cached_network_image.dart';
 
@@ -23,12 +25,12 @@ class _MainPageState extends State<MainPage> {
   PageController controller;
   List<Recipe> recipes = new List<Recipe>();
   double viewPortFraction = 0.5;
-  int currentPage = 10;
+  int currentPage = 5;
   String recipeText = "";
   double page = 2.0;
   BannerAd myBanner = BannerAd(
     adUnitId: BannerAd.testAdUnitId,
-    size: AdSize.smartBanner,
+    size: AdSize.banner,
     listener: (MobileAdEvent event) {
       print("BannerAd event is $event");
     },
@@ -66,7 +68,10 @@ class _MainPageState extends State<MainPage> {
             width: MediaQuery.of(context).size.height * 0.25,
             child: Stack(alignment: Alignment.bottomLeft, children: <Widget>[
               StreamBuilder<QuerySnapshot>(
-                stream: Firestore.instance.collection('Recipes').snapshots(),
+                stream: Firestore.instance
+                    .collection('Recipes')
+                    .orderBy("add_date", descending: true)
+                    .snapshots(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
                     return Center(
@@ -75,13 +80,16 @@ class _MainPageState extends State<MainPage> {
                             height: 50,
                             child: CircularProgressIndicator()));
                   }
-                  var snap = snapshot.data.documents.take(5).toList();
-
-                  for (var item in snap) {
-                    final Recipe recipe = Recipe.fromSnapshot(item);
-                    recipes.add(recipe);
+                  if (recipes.length == 0) {
+                    var snap = snapshot.data.documents.take(5).toList();
+                    for (var item in snap) {
+                      final Recipe recipe = Recipe.fromSnapshot(item);
+                      recipes.add(recipe);
+                    }
                   }
 
+                  print("LLLLLLLLLLLLLLLLLLLL" + recipes.length.toString());
+                  //recipeText = recipes[currentPage].name;
                   return new Container(
                     height: PAGER_HEIGHT,
                     child: NotificationListener<ScrollNotification>(
@@ -96,13 +104,13 @@ class _MainPageState extends State<MainPage> {
                       child: PageView.builder(
                         onPageChanged: (pos) {
                           setState(() {
-                            currentPage = pos;
+                            //currentPage = pos;
                             recipeText = recipes[pos].name;
                           });
                         },
                         physics: BouncingScrollPhysics(),
                         controller: controller,
-                        itemCount: 5,
+                        itemCount: recipes.length,
                         itemBuilder: (context, index) {
                           final scale = max(
                               SCALE_FRACTION,
@@ -144,7 +152,7 @@ class _MainPageState extends State<MainPage> {
           Container(
             color: Colors.white,
             child: StreamBuilder<QuerySnapshot>(
-              stream: Firestore.instance.collection('Categories').snapshots(),
+              stream: Firestore.instance.collection('Categories').orderBy("orderID").snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData)
                   return Center(
@@ -153,14 +161,18 @@ class _MainPageState extends State<MainPage> {
                           height: 100,
                           child: CircularProgressIndicator()));
                 return GridView.count(
-                    padding: EdgeInsets.all(10),
-                    primary: false,
-                    shrinkWrap: true,
-                    crossAxisCount: 2,
-                    children: _catList(snapshot.data.documents));
+                  padding: EdgeInsets.all(10),
+                  primary: false,
+                  shrinkWrap: true,
+                  crossAxisCount: 2,
+                  children: _catList(snapshot.data.documents),
+                );
               },
             ),
           ),
+          Container(
+            height: 50,
+          )
         ],
       ),
     ));
@@ -177,6 +189,7 @@ class _MainPageState extends State<MainPage> {
                 MaterialPageRoute(
                     builder: (context) => new RecipePage(
                           recipe: rec,
+                          fs:18
                         )));
           },
           child: Container(
@@ -204,18 +217,21 @@ class _MainPageState extends State<MainPage> {
   }
 
   List<Widget> _catList(List<DocumentSnapshot> snap) {
-    Category category;
+    
     List<Widget> res = new List<Widget>();
     Widget w;
     List<Category> cats = new List<Category>();
     for (var item in snap) {
-      category = Category.fromSnapshot(item);
+      final Category category = Category.fromSnapshot(item);
       cats.add(category);
     }
 
     for (var category in cats) {
       w = new FlatButton(
           onPressed: () {
+            Navigator.push(context, MaterialPageRoute(
+              builder: (context) => new CategoryPage(cat:category),
+            ));
             return 0;
           },
           child: Column(

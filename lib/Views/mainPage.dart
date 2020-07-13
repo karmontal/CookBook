@@ -29,7 +29,7 @@ class _MainPageState extends State<MainPage> {
   String recipeText = "";
   double page = 2.0;
   BannerAd myBanner = BannerAd(
-    adUnitId: BannerAd.testAdUnitId,
+    adUnitId: "ca-app-pub-2738619858586311/2930851957",
     size: AdSize.banner,
     listener: (MobileAdEvent event) {
       print("BannerAd event is $event");
